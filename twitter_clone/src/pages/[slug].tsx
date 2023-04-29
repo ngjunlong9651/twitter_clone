@@ -6,22 +6,26 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { api } from "~/utils/api";
 import { PageLayout } from "~/components/layout";
 dayjs.extend(relativeTime);
+import Image from "next/image";
+import { LoadingPage } from "~/components/loading";
+import { PostView } from "~/components/postview";
+import { generatessgHelpers } from "~/server/helpers/ssgHelpers";
 
 const ProfileFeed = (props: { userId: string }) => {
   const { data, isLoading } = api.posts.getPostsByUserId.useQuery({
     userId: props.userId,
   });
 
-  if (isLoading) return <LoadingPage/ >;
-  if(!data || data.length === 0) return <div> User has not posted </div>
+  if (isLoading) return <LoadingPage />;
+  if (!data || data.length === 0) return <div> User has not posted </div>;
 
-  return <div className = "flex flex-col">
-    {data.map((fullPost) => 
-    (<PostView {...fullPost} key={fullPost.post.id} />
+  return (
+    <div className="flex flex-col">
+      {data.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id} />
       ))}
-
-  </div>
-
+    </div>
+  );
 };
 
 interface ProfilePageProps {
@@ -72,22 +76,10 @@ const ProfilePage: NextPage<ProfilePageProps> = ({ username }) => {
   );
 };
 
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import { appRouter } from "~/server/api/root";
-import { prisma } from "~/server/db";
-import superjson from "superjson";
-import Image from "next/image";
-import { LoadingPage } from "~/components/loading";
-import { PostView } from "~/components/postview";
-
 export const getStaticProps: GetStaticProps<ProfilePageProps> = async (
   context
 ) => {
-  const ssg = createServerSideHelpers({
-    router: appRouter,
-    ctx: { prisma, userId: null },
-    transformer: superjson, // optional - adds superjson serialization
-  });
+  const ssg = generatessgHelpers();
 
   const slug = context.params?.slug;
 
