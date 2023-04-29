@@ -3,5 +3,6 @@
 @tailwind utilities;
 
 body {
-    @apply bg-black text-slate-400;
+  @apply bg-black text-slate-400;
+  overscroll-behavior: none;
 }
